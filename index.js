@@ -8,7 +8,7 @@ let Routes = require('./routes');
 
 let app = Express();
 
-const PORT = 3000 || process.env.PORT;
+const PORT = 8000 || process.env.PORT;
 
 app.use(CORS());
 
@@ -18,7 +18,7 @@ app.use(BodyParser.urlencoded({
 
 app.use(BodyParser.json());
 
-Mongoose.connect('mongodb://localhost/testApp', { 
+Mongoose.connect('mongodb://localhost/testApp', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true
