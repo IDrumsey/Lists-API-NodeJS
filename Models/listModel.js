@@ -14,7 +14,6 @@ let ListSchema = new Mongoose.Schema(
     {
         name: {
             type: String,
-            required: true
         },
         user_id: {
             type: Mongoose.Schema.Types.ObjectId,

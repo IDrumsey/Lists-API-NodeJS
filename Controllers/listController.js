@@ -74,18 +74,18 @@ let List = require('../Models/listModel');
                 });
             }
 
+
             //check there is info to update
             if(req.body.name == undefined && req.body.user_id == undefined && req.body.remove_item == undefined && req.body.new_item == undefined){
                 res.json({
                     status: "error",
                     error: "No information provided"
                 });
-                return;
+                return
             }
 
             //create new items array
-            console.log(list)
-            let new_arr = list.item_ids;
+            let new_arr = list.item_ids || [];
             if(req.body.new_item != undefined){
                 //add the new item
                 new_arr.push(req.body.new_item);
@@ -96,13 +96,14 @@ let List = require('../Models/listModel');
 
                 if(i != -1){
                     //remove from array
-                    new_arr = new_arr.splice(i, 1);
+                    let test = [1, 2]
+                    new_arr.splice(i, 1)
                 }
             }
 
             //update the info using the request
-            list.name = req.body.name;
-            list.user_id = req.body.user_id;
+            list.name = req.body.name || list.name;
+            list.user_id = req.body.user_id || list.user_id;
             list.item_ids = new_arr
 
             //save the lists info
@@ -112,12 +113,14 @@ let List = require('../Models/listModel');
                         status: "error",
                         error: err
                     });
+                    return
                 }
 
                 res.json({
                     status: "list updated",
                     List: list
                 });
+                return
             })
         })
     }
