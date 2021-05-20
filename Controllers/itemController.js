@@ -18,6 +18,7 @@ let Item = require('../Models/itemModel');
             if(err){
                 // send error info
                 res.json(err);
+                return
             }
 
             // no error -> send data
@@ -115,6 +116,7 @@ let Item = require('../Models/itemModel');
                         status: "error",
                         error: err
                     });
+                    return
                 }
 
                 res.json({

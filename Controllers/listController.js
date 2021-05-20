@@ -19,12 +19,13 @@ let List = require('../Models/listModel');
             if(err){
                 // send error info
                 res.json(err);
+                return
             }
 
             // no error -> send data
             res.json(
                 {
-                    status: "New list created successfully!",
+                    status: "success",
                     list: new_list
                 }
             )
@@ -56,6 +57,7 @@ let List = require('../Models/listModel');
                     status: "error",
                     error: err
                 });
+                return
             }
             res.json({
                 List: list
@@ -137,10 +139,11 @@ let List = require('../Models/listModel');
                         status: "error",
                         error: err
                     });
+                    return
                 }
 
                 res.json({
-                    status: "Deleted list id : " + req.params.list_id
+                    status: "success"
                 });
             }
         )

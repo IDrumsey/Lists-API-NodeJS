@@ -2,12 +2,15 @@ const Express = require('express');
 const Chalk = require('chalk');
 const BodyParser = require('body-parser');
 const Mongoose = require('mongoose');
+const CORS = require('cors');
 
 let Routes = require('./routes');
 
 let app = Express();
 
 const PORT = 3000 || process.env.PORT;
+
+app.use(CORS());
 
 app.use(BodyParser.urlencoded({
     extended: true
