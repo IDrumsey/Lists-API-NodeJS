@@ -3,7 +3,18 @@
 // Importing the model to define the operations on
 let User = require('../Models/userModel');
 
+// used for encryption
+let bcrypt = require('bcryptjs');
+
+// used for authorization
+let jwt = require('jsonwebtoken');
+
+let config = require('../config');
+
 // Operations
+
+    // jwt authentication
+    // https://www.freecodecamp.org/news/securing-node-js-restful-apis-with-json-web-tokens-9f811a92bb52/
 
     //create new user (POST: /api/users)
     exports.new = function (req, res) {
@@ -12,7 +23,10 @@ let User = require('../Models/userModel');
         new_user.firstName = req.body.firstName;
         new_user.lastName = req.body.lastName;
         new_user.email = req.body.email;
-        new_user.password = req.body.password;
+        // new_user.password = req.body.password; //not hashed
+
+        // hash the user's password
+        new_user.password = bcrypt.hashSync(req.body.password, 15);
 
         // saving the model to db
         new_user.save((err) => {
@@ -22,14 +36,63 @@ let User = require('../Models/userModel');
                 res.json(err);
             }
 
+            //create a token
+            let token = jwt.sign(
+                // token payload
+                {
+                    id: new_user._id
+                },
+                //secret
+                config.secret,
+                //options
+                {
+                    expiresIn: 7200 //2 hour limit
+                }
+            )
+
             // no error -> send data
             res.json(
                 {
                     status: "New user created successfully!",
-                    user: new_user
+                    user: new_user,
+                    auth: true,
+                    token: token
                 }
             )
         })
+    }
+
+    // authenticate user
+    exports.auth = function (req, res) {
+        //get the token
+        let token = req.headers['x-access-token'];
+
+        //check if no token
+        if(!token){
+            //no token provided
+            res.status(401).json({
+                auth: false,
+                status: 'Invalid credentials'
+            });
+        }
+
+        //verify the token
+        jwt.verify(token, config.secret, (err, decoded) => {
+            // check for error
+            if(err){
+                return res.status(500).json({
+                    auth: false,
+                    status: "Error: couldn't authenticate credentials"
+                })
+            }
+
+            // no error -> return res
+            res.json({
+                status: decoded
+            })
+        })
+
+        //respond
     }
 
     //get all users (GET: /api/users)

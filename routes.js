@@ -13,6 +13,9 @@ let Router = require('express').Router();
             .get(UserController.index)
             .post(UserController.new);
 
+        Router.route('/auth')
+            .get(UserController.auth)
+
         // -> get specific user info (GET)
         // -> update specific user info (PUT)
         // -> delete specific user (DELETE)
