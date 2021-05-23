@@ -3,6 +3,7 @@ const Chalk = require('chalk');
 const BodyParser = require('body-parser');
 const Mongoose = require('mongoose');
 const CORS = require('cors');
+const CookieParser = require('cookie-parser')
 
 let Routes = require('./routes');
 
@@ -17,6 +18,8 @@ app.use(BodyParser.urlencoded({
 }));
 
 app.use(BodyParser.json());
+
+app.use(CookieParser())
 
 Mongoose.connect('mongodb://localhost/testApp', {
     useNewUrlParser: true,

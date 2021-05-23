@@ -28,7 +28,13 @@ let UserSchema = new Mongoose.Schema(
         password: {
             type: String,
             required: true
-        }
+        },
+        list_ids: [
+            {
+                type: Mongoose.Schema.Types.ObjectId,
+                ref: 'List'
+            }
+        ]
     }
 );
 

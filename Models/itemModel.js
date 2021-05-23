@@ -19,10 +19,10 @@ let ItemSchema = new Mongoose.Schema(
             type: Mongoose.Schema.Types.ObjectId,
             ref: 'User'
         },
-        // list: {
-        //     type: Mongoose.Schema.Types.ObjectId,
-        //     ref: 'List'
-        // }
+        list: {
+            type: Mongoose.Schema.Types.ObjectId,
+            ref: 'List'
+        }
     }
 );
 

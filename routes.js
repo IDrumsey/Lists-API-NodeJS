@@ -13,6 +13,9 @@ let Router = require('express').Router();
             .get(UserController.index)
             .post(UserController.new);
 
+        Router.route('/auth/login')
+            .post(UserController.login)
+
         Router.route('/auth')
             .get(UserController.auth)
 

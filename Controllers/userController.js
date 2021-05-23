@@ -1,5 +1,7 @@
 // Controller for user component
 
+let cookieParser = require('cookie-parser');
+
 // Importing the model to define the operations on
 let User = require('../Models/userModel');
 
@@ -13,10 +15,16 @@ let config = require('../config');
 
 // Operations
 
+    canPass = (res, accessToken, user_id) => {
+        console.log("adding cookies")
+        res.cookie('accessToken', accessToken);
+        res.cookie('userID', user_id);
+    }
+
     // jwt authentication
     // https://www.freecodecamp.org/news/securing-node-js-restful-apis-with-json-web-tokens-9f811a92bb52/
 
-    //create new user (POST: /api/users)
+    //create new user (POST: /api/users) : IE Register
     exports.new = function (req, res) {
         // create the user and set the data
         let new_user = new User();
@@ -34,6 +42,7 @@ let config = require('../config');
             if(err){
                 // send error info
                 res.json(err);
+                return
             }
 
             //create a token
@@ -50,16 +59,90 @@ let config = require('../config');
                 }
             )
 
-            // no error -> send data
+            //set cookie
+            canPass(res, token, new_user._id);
+
+            // no error -> reroute/send data
             res.json(
                 {
                     status: "New user created successfully!",
-                    user: new_user,
+                    user: {
+                        id: new_user._id,
+                        firstName: new_user.firstName,
+                        lastName: new_user.lastName,
+                        email: new_user.email
+                    },
                     auth: true,
                     token: token
                 }
             )
         })
+    }
+
+    // login user (POST: /api/auth/login)
+    exports.login = function (req, res) {
+        //check if user exists using email
+        User.findOne(
+            //filter
+            {
+                email: req.body.email
+            },
+            //callback
+            (err, user) => {
+
+                //check for server err
+                if(err) {
+                    res.status(500).json({
+                        status: "Server error"
+                    })
+                    return
+                }
+                //check for no user
+                if(!user) {
+                    res.status(200).json({
+                        auth: false,
+                        code: 1
+                    })
+                    return
+                }
+
+                //check the password
+                if(!bcrypt.compareSync(req.body.password, user.password)){
+                    //bad pass
+                    res.status(200).json({
+                        auth: false,
+                        code: 2
+                    })
+                    return
+                }
+
+                //no err -> create a token
+
+                let token = jwt.sign(
+                    // token payload
+                    {
+                        id: user._id
+                    },
+                    //secret
+                    config.secret,
+                    //options
+                    {
+                        expiresIn: 7200 //2 hour limit
+                    }
+                );
+
+                //set cookie
+                canPass(res, token, user._id);
+
+                console.log(req.cookies);
+
+                //respond with token
+                res.status(200).json({
+                    auth: true,
+                    token: token
+                });
+            }
+        )
     }
 
     // authenticate user
@@ -136,10 +219,18 @@ let config = require('../config');
                     status: "error",
                     error: err
                 });
+                return
+            }
+
+            //check for not found
+            if(!user){
+                return res.json({
+                    status: "not found"
+                })
             }
 
             //check there is info to update
-            if(req.body.firstName == undefined && req.body.lastName == undefined && req.body.email == undefined && req.body.password == undefined){
+            if(req.body.firstName == undefined && req.body.lastName == undefined && req.body.email == undefined && req.body.password == undefined && req.body.new_list == undefined && req.body.remove_list == undefined){
                 res.json({
                     status: "error",
                     error: "No information provided"
@@ -147,11 +238,28 @@ let config = require('../config');
                 return;
             }
 
+            //add or remove list
+            let new_arr = user.list_ids || [];
+            if(req.body.new_list != undefined){
+                //add the new item
+                new_arr.push(req.body.new_list);
+            }
+            if(req.body.remove_list != undefined){
+                //remove the item => get index and slice
+                let i = new_arr.indexOf(req.body.remove_list);
+
+                if(i != -1){
+                    //remove from array
+                    new_arr.splice(i, 1)
+                }
+            }
+
             //update the info using the request
             user.firstName = req.body.firstName || user.firstName;
             user.lastName = req.body.lastName || user.lastName;
             user.email = req.body.email || user.email;
             user.password = req.body.password || user.password;
+            user.list_ids = new_arr;
 
             //save the users info
             user.save(err => {

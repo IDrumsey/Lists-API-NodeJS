@@ -3,6 +3,8 @@
 // Importing the model to define the operations on
 let List = require('../Models/listModel');
 
+let User = require('../Models/userModel');
+
 // Operations
 
     //create new list (POST: /api/lists)
@@ -98,7 +100,6 @@ let List = require('../Models/listModel');
 
                 if(i != -1){
                     //remove from array
-                    let test = [1, 2]
                     new_arr.splice(i, 1)
                 }
             }
