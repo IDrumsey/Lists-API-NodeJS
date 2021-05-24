@@ -11,7 +11,10 @@ let app = Express();
 
 const PORT = 8000 || process.env.PORT;
 
-app.use(CORS());
+app.use(CORS({
+    origin: ['http://localhost:3000'],
+    credentials: true
+}));
 
 app.use(BodyParser.urlencoded({
     extended: true

@@ -1,5 +1,7 @@
 let Router = require('express').Router();
 
+let { auth } = require('./Middleware/authMiddleware');
+
 //Define paths
 
     // Include the user controller
@@ -10,8 +12,8 @@ let Router = require('express').Router();
         // -> get all users (GET)
         // -> create new user (POST)
         Router.route('/users')
-            .get(UserController.index)
-            .post(UserController.new);
+            .post(UserController.new)
+            .get(UserController.index) // protected
 
         Router.route('/auth/login')
             .post(UserController.login)
@@ -23,9 +25,10 @@ let Router = require('express').Router();
         // -> update specific user info (PUT)
         // -> delete specific user (DELETE)
         Router.route('/users/:user_id')
-            .get(UserController.show)
-            .put(UserController.update)
-            .delete(UserController.delete)
+            .all(auth())
+            .get(UserController.show) // protected
+            .put(UserController.update) // protected
+            .delete(UserController.delete) // protected
 
 //==================================================================================================================================
 
@@ -37,16 +40,18 @@ let Router = require('express').Router();
         // -> get all lists (GET)
         // -> create new list (POST)
         Router.route('/lists')
-            .get(ListController.index)
-            .post(ListController.new);
+            .all(auth())
+            .get(ListController.index) // protected
+            .post(ListController.new); // protected
 
         // -> get specific list info (GET)
         // -> update specific list info (PUT)
         // -> delete specific list (DELETE)
         Router.route('/lists/:list_id')
-            .get(ListController.show)
-            .put(ListController.update)
-            .delete(ListController.delete)
+            .all(auth())
+            .get(ListController.show) // protected
+            .put(ListController.update) // protected
+            .delete(ListController.delete) // protected
 
 //==================================================================================================================================
 
@@ -58,16 +63,18 @@ let Router = require('express').Router();
         // -> get all items (GET)
         // -> create new item (POST)
         Router.route('/items')
-            .get(ItemController.index)
-            .post(ItemController.new);
+            .all(auth())
+            .get(ItemController.index) // protected
+            .post(ItemController.new);// protected
 
         // -> get specific item info (GET)
         // -> update specific item info (PUT)
         // -> delete specific item (DELETE)
         Router.route('/items/:item_id')
-            .get(ItemController.show)
-            .put(ItemController.update)
-            .delete(ItemController.delete)
+            .all(auth())
+            .get(ItemController.show) // protected
+            .put(ItemController.update) // protected
+            .delete(ItemController.delete) // protected
 
 //export the router obj which contains all the routes
 

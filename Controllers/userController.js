@@ -1,7 +1,5 @@
 // Controller for user component
 
-let cookieParser = require('cookie-parser');
-
 // Importing the model to define the operations on
 let User = require('../Models/userModel');
 
@@ -14,12 +12,6 @@ let jwt = require('jsonwebtoken');
 let config = require('../config');
 
 // Operations
-
-    canPass = (res, accessToken, user_id) => {
-        console.log("adding cookies")
-        res.cookie('accessToken', accessToken);
-        res.cookie('userID', user_id);
-    }
 
     // jwt authentication
     // https://www.freecodecamp.org/news/securing-node-js-restful-apis-with-json-web-tokens-9f811a92bb52/
@@ -59,8 +51,12 @@ let config = require('../config');
                 }
             )
 
-            //set cookie
-            canPass(res, token, new_user._id);
+            res.cookie('accessToken', token, {
+                httpOnly: true,
+                // secure: true,
+                // maxAge: 7200,
+                // signed: true
+            });
 
             // no error -> reroute/send data
             res.json(
@@ -130,11 +126,6 @@ let config = require('../config');
                         expiresIn: 7200 //2 hour limit
                     }
                 );
-
-                //set cookie
-                canPass(res, token, user._id);
-
-                console.log(req.cookies);
 
                 //respond with token
                 res.status(200).json({
