@@ -72,7 +72,7 @@ let User = require('../Models/userModel');
     exports.update = function (req, res) {
         List.findById(req.params.list_id, (err, list) => {
             if(err){
-                res.json({
+                return res.json({
                     status: "error",
                     error: err
                 });
@@ -124,6 +124,190 @@ let User = require('../Models/userModel');
                     List: list
                 });
                 return
+            })
+        })
+    }
+
+    // Add contributors
+    module.exports.addContributor = function (req, res) {
+        List.findById(req.params.list_id, (err, list) => {
+            if(err){
+                return res.json({
+                    status: "error",
+                    error: err
+                });
+            }
+
+            // check if user is set
+            if(!req.body.user_email){
+                // no user specified
+                return res.json({
+                    status: "error",
+                    error: "No user specified"
+                });
+            }
+
+            // find the user
+            User.findOne({email: req.body.user_email}, (err, user) => {
+                //check if err
+                if(err){
+                    return res.json({
+                        status: "error",
+                        error: err
+                    });
+                }
+
+                //check for no user
+                if(!user){
+                    return res.json({
+                        status: "error",
+                        error: "No user with email : " + req.body.user_email
+                    });
+                }
+
+                //found user -> update contributors arr
+                let all_contributors = [
+                    ...list.contributors,
+                    user._id
+                ];
+
+                list.contributors = all_contributors;
+
+                //attempt to save the new arr
+
+                list.save(err => {
+                    // check for err
+                    if(err){
+                        return res.json({
+                            status: "error",
+                            error: "Couldn't save the new contributor to the list"
+                        });
+                    }
+
+                    //saved -> respond with success message
+                    return res.json({
+                        status: "success",
+                        list: list
+                    });
+                })
+            })
+        })
+    }
+
+    //remove contributor
+    module.exports.removeContributor = function(req, res) {
+        //find the list
+        List.findById(req.params.list_id, (err, list) => {
+            //check for server err
+            if(err){
+                return res.json({
+                    status: "error",
+                    error: err
+                });
+            }
+
+            //check for no list
+            if(!list){
+                return res.json({
+                    status: "error",
+                    error: "List " + req.params.list_id + " not found"
+                });
+            }
+
+            //found list -> remove user from contributors
+            let found_user = false;
+            let found_user_obj;
+
+            //flags for breaking
+            let stop = false;
+
+            for(let i = 0; i < list.contributors.length; i++){
+                console.log("test1")
+                let contributor = list.contributors[i]; // contributor id
+
+                // find by id and compare emails
+                User.findById(contributor, (err, user) => {
+                    //check for server err
+                    if(err){
+                        return res.json({
+                            status: "error",
+                            error: err
+                        });
+                    }
+
+                    //check if no user
+                    if(!user){
+                        //return with err since continue isn't working in here
+                        return;
+                    }
+
+                    //found user -> compare emails
+                    console.log("temp email : ", user.email)
+                    if(user.email == req.body.user_email){
+                        console.log("found")
+                        // set found flag
+                        found_user = true;
+                        console.log(found_user)
+                        // set found user for reference later
+                        found_user_obj = user;
+                        // set stop flag
+                        stop = true;
+
+                        //stop searching
+                        return;
+                    }
+                })
+
+                if(stop){
+                    break;
+                }
+            }
+            console.log(found_user)
+
+            console.log("test2")
+
+            //check if not in contributors list
+            if(!found_user){
+                console.log("user not found")
+                return res.json({
+                    status: "error",
+                    error: "User with email " + req.body.user_email + " isn't a contributor for list " + list._id
+                })
+            }
+
+            //remove from the list contributors
+            let user_index = list.contributors.find(element => element === found_user_obj._id);
+
+            console.log(user_index)
+
+            //check if not found (this should be handled above), but just in case
+            if(user_index === -1){
+                return res.json({
+                    status: "error",
+                    error: "User with email " + req.body.user_email + " isn't a contributor for list " + list._id
+                })
+            }
+
+            // found index -> remove it
+            let updated_contributors = list.contributors.splice(user_index, 1);
+
+            list.contributors = updated_contributors;
+
+            // attempt to save update list
+            list.save(err => {
+                // check for server error
+                if(err){
+                    return res.json({
+                        status: "error",
+                        error: err
+                    })
+                }
+
+                // good save
+                return res.json({
+                    status: "success",
+                    List: list
+                })
             })
         })
     }

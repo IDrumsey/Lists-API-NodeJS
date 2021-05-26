@@ -24,7 +24,7 @@ app.use(BodyParser.json());
 
 app.use(CookieParser())
 
-Mongoose.connect('mongodb://localhost/testApp', {
+Mongoose.connect('mongodb://localhost/Lists', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true

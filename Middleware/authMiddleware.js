@@ -8,9 +8,10 @@ exports.auth = () => {
 
         let token = req.headers['authorization'];
 
+        // checks if there wasn't a token
         if(!token){
             return res.json({
-                status: "unauthorized",
+                auth: false
             });
         }
 
@@ -19,9 +20,11 @@ exports.auth = () => {
         jwt.verify(token, config.secret, (err, decoded) => {
             if(err){
                 return res.json({
-                    status: "unauthorized"
+                    auth: false
                 });
             }
+
+            // no issues -> move on
             next();
         });
     }

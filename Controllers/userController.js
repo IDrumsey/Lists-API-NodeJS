@@ -201,6 +201,32 @@ let config = require('../config');
         })
     }
 
+    exports.showByEmail = function (req, res) {
+        User.findOne({email: req.params.user_email}, (err, user) => {
+            //check for server err
+            if(err){
+                return res.json({
+                    status: "error",
+                    error: err
+                })
+            }
+
+            //check for no user
+            if(!user){
+                return res.json({
+                    status: "error",
+                    error: "No user found"
+                })
+            }
+
+            // good -> show details
+            return res.json({
+                status: "success",
+                User: user
+            })
+        })
+    }
+
     //update specific user info (PUT/PATCH: /api/users/:id)
     //get specific user (GET: /api/users/:id)
     exports.update = function (req, res) {

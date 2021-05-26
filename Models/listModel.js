@@ -7,6 +7,7 @@ let Mongoose = require('mongoose');
         name
         user_id
         items[]
+        contributors[]
     }
 */
 
@@ -23,6 +24,12 @@ let ListSchema = new Mongoose.Schema(
             {
                 type: Mongoose.Schema.Types.ObjectId,
                 ref: 'Item'
+            }
+        ],
+        contributors: [
+            {
+                type: Mongoose.Schema.Types.ObjectId,
+                ref: 'User'
             }
         ]
     }

@@ -30,6 +30,11 @@ let { auth } = require('./Middleware/authMiddleware');
             .put(UserController.update) // protected
             .delete(UserController.delete) // protected
 
+        // -> get specific user info by email (GET)
+        Router.route('/users/:user_email')
+            .all(auth())
+            .get(UserController.showByEmail) // protected
+
 //==================================================================================================================================
 
     // Include the list controller
@@ -52,6 +57,12 @@ let { auth } = require('./Middleware/authMiddleware');
             .get(ListController.show) // protected
             .put(ListController.update) // protected
             .delete(ListController.delete) // protected
+
+        // -> add contributor (POST)
+        Router.route('/lists/:list_id/contributor')
+            .all(auth())
+            .post(ListController.addContributor) // protected
+            .delete(ListController.removeContributor) // protected
 
 //==================================================================================================================================
 
